@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+    
+const containor=document.querySelector('.js-container');
+
+const button= (<>
+  <p>Cotten socks</p>
+  <p>price:$10</p>
+  <button>Add to Cart</button>
+</>
+
+ );
+
+ const List=()=>{ 
+ const chatMessages=[{message:'hello',sender:'user',id:crypto.randomUUID()},
+  {message:'i m good thank you',sender:'robot',id:crypto.randomUUID()},
+ {message:'you are welcome',sender:'user',id:crypto.randomUUID()},
+ {message:'how can i help you',sender:'robot',id:crypto.randomUUID()}]
+
+ const Chat=chatMessages.map(chat=>{ 
+const message=chat.message;
+const sender=chat.sender;
+return(<chat message={message} sender={sender}/>);
+ });
+
+ };
+ List();
+  
+
+ReactDOM.createRoot(containor).render(<List/>);
+</script>
+  </body>
+</html>
