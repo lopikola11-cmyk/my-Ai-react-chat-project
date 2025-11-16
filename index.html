@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>chatbot</title>
+    <title>AI Chatbot</title>
     <style>
       html{ height: 100%; }
       .All{ height: 100vh; width: 100%; display: flex; }
@@ -78,201 +78,209 @@
 
     <script type="text/babel">
 
-function className(){ return 'bomba'; }
-const container = document.querySelector('.js-container');
+      function className(){ return 'bomba'; }
+      const container = document.querySelector('.js-container');
 
-/* WELCOME */
-const WelcomeMessage = ({ show }) => {
-  if (!show) return null;
-  return <div className="welcome-message">Welcome, User!</div>;
-};
-
-/* CHAT INPUT */
-const Chat_input = ({ 
-  setChatMessages, chatMessages,
-  ID, setID,
-  chatData, setChatData,
-  onFirstSend
-}) => {
-
-  const [inputText, setInputText] = React.useState('');
-
-  function saveInputMessage(e){ setInputText(e.target.value); }
-
-  function sendMessage(){
-    if (onFirstSend) onFirstSend();
-
-    const newMessages = [
-      ...chatMessages,
-      { message: inputText, sender:'user', id:crypto.randomUUID() },
-      { message: Chatbot.getResponse(inputText), sender:'robot', id:crypto.randomUUID() }
-    ];
-
-    setChatMessages(newMessages);
-
-    let activeID = ID;
-
-    if(!ID){
-      const newID = crypto.randomUUID();
-      setID(newID);
-      activeID = newID;
-
-      const newChatName = `Chat N:${Object.keys(chatData).length + 1}`;
-
-      const newData = {
-        ...chatData,
-        [newID]: {
-          name: newChatName,
-          messages: newMessages
-        }
+      /* WELCOME */
+      const WelcomeMessage = ({ show }) => {
+        if (!show) return null;
+        return <div className="welcome-message">Welcome, User!</div>;
       };
 
-      setChatData(newData);
-      localStorage.setItem("chat_data", JSON.stringify(newData));
-      history.pushState({}, "", `?id=${newID}`);
-    } 
-    else {
-      const updated = {
-        ...chatData,
-        [activeID]: {
-          ...chatData[activeID],
-          messages: newMessages
+      /* CHAT INPUT */
+      const Chat_input = ({ 
+        setChatMessages, chatMessages,
+        ID, setID,
+        chatData, setChatData,
+        onFirstSend
+      }) => {
+
+        const [inputText, setInputText] = React.useState('');
+
+        function saveInputMessage(e){ setInputText(e.target.value); }
+
+        function sendMessage(){
+          if (onFirstSend) onFirstSend();
+
+          const newMessages = [
+            ...chatMessages,
+            { message: inputText, sender:'user', id:crypto.randomUUID() },
+            { message: Chatbot.getResponse(inputText), sender:'robot', id:crypto.randomUUID() }
+          ];
+
+          setChatMessages(newMessages);
+
+          let activeID = ID;
+
+          if(!ID){
+            const newID = crypto.randomUUID();
+            setID(newID);
+            activeID = newID;
+
+            const newChatName = `Chat N:${Object.keys(chatData).length + 1}`;
+
+            const newData = {
+              ...chatData,
+              [newID]: {
+                name: newChatName,
+                messages: newMessages
+              }
+            };
+
+            setChatData(newData);
+            localStorage.setItem("chat_data", JSON.stringify(newData));
+            history.pushState({}, "", `${window.location.pathname}?id=${newID}`);
+          } 
+          else {
+            const updated = {
+              ...chatData,
+              [activeID]: {
+                ...chatData[activeID],
+                messages: newMessages
+              }
+            };
+
+            setChatData(updated);
+            localStorage.setItem("chat_data", JSON.stringify(updated));
+          }
+
+          setInputText('');
         }
-      };
 
-      setChatData(updated);
-      localStorage.setItem("chat_data", JSON.stringify(updated));
-    }
-
-    setInputText('');
-  }
-
-  return (
-    <div className='input-div'>
-      <input onChange={saveInputMessage} value={inputText} placeholder='Ask me'/>
-      <button onClick={sendMessage} className={className()}>send</button>
-    </div>
-  );
-};
-
-/* CHAT MESSAGES */
-const Chat_Message = ({ chatMessages }) => (
-  <div className='div-chatMessages'>
-    {chatMessages.map(chat => (
-      <div key={chat.id} className={chat.sender==='robot'?'robot':'user'}>
-        {chat.sender==='robot' && <img src="robot.png" width="30"/>}
-        {chat.message}
-        {chat.sender==='user' && <img src="user.png" width="30"/>}
-      </div>
-    ))}
-  </div>
-);
-
-/* SIDEBAR */
-const AiStyling = ({ chatData, setChatData, currentID, setID, setChatMessages }) => {
-
-  const deleteChat = (idToDelete, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const updated = { ...chatData };
-    delete updated[idToDelete];
-    setChatData(updated);
-    localStorage.setItem("chat_data", JSON.stringify(updated));
-
-    if (currentID === idToDelete) {
-      setID(null);
-      setChatMessages([]);
-      history.pushState({}, "", `/`);
-    }
-  };
-
-  return (
-    <div className='table'>
-      <div className="sidebar">
-        <a href='/' target="_blank" className="active">New chat</a>
-        <a href="#">Search chats</a>
-        <a href="#">Library</a>
-        <a href="#">Chats</a>
-      </div>
-
-      <div className='chats'>
-        {Object.keys(chatData).map(id => (
-          <div key={id} className="chat-item">
-            <a 
-              href={`?id=${id}`} 
-              className="chat-link"
-              title={chatData[id].name}
-            >
-              {chatData[id].name}
-            </a>
-            <button 
-              className="delete-btn" 
-              onClick={(e) => deleteChat(id, e)}
-            >
-              Delete
-            </button>
+        return (
+          <div className='input-div'>
+            <input onChange={saveInputMessage} value={inputText} placeholder='Ask me'/>
+            <button onClick={sendMessage} className={className()}>send</button>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+        );
+      };
 
-/* MAIN APP */
-const Lola = () => {
+      /* CHAT MESSAGES */
+      const Chat_Message = ({ chatMessages }) => (
+        <div className='div-chatMessages'>
+          {chatMessages.map(chat => (
+            <div key={chat.id} className={chat.sender==='robot'?'robot':'user'}>
+              {chat.sender==='robot' && <img src="robot.png" width="30"/>}
+              {chat.message}
+              {chat.sender==='user' && <img src="user.png" width="30"/>}
+            </div>
+          ))}
+        </div>
+      );
 
-  const [chatData, setChatData] = React.useState({});
-  const [ID, setID] = React.useState(null);
-  const [chatMessages, setChatMessages] = React.useState([]);
-  const [showWelcome, setShowWelcome] = React.useState(true);
-  const [hasSentFirst, setHasSentFirst] = React.useState(false);
+      /* SIDEBAR */
+      const AiStyling = ({ chatData, setChatData, currentID, setID, setChatMessages }) => {
 
-  React.useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("chat_data")) || {};
-    setChatData(stored);
+        const deleteChat = (idToDelete, e) => {
+          e.preventDefault();
+          e.stopPropagation();
 
-    const urlID = new URLSearchParams(window.location.search).get("id");
+          const updated = { ...chatData };
+          delete updated[idToDelete];
+          setChatData(updated);
+          localStorage.setItem("chat_data", JSON.stringify(updated));
 
-    if(urlID && stored[urlID]){
-      setID(urlID);
-      setChatMessages(stored[urlID].messages || []);
-      setShowWelcome(false);
-    }
-  }, []);
+          if (currentID === idToDelete) {
+            setID(null);
+            setChatMessages([]);
+            history.pushState({}, "", window.location.pathname);
+          }
+        };
 
-  const handleFirstSend = () => {
-    if (!hasSentFirst) {
-      setShowWelcome(false);
-      setHasSentFirst(true);
-    }
-  };
+        return (
+          <div className='table'>
+            <div className="sidebar">
+              <a 
+                href={window.location.origin + window.location.pathname} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="active"
+              >
+                New chat
+              </a>
+              <a href="#">Search chats</a>
+              <a href="#">Library</a>
+              <a href="#">Chats</a>
+            </div>
 
-  return (
-    <div className='All'>
-      <WelcomeMessage show={showWelcome} />
-      <AiStyling 
-        chatData={chatData} 
-        setChatData={setChatData}
-        currentID={ID}
-        setID={setID}
-        setChatMessages={setChatMessages}
-      />
-      <div className='input-Messages'>
-        <Chat_input
-          setChatMessages={setChatMessages}
-          chatMessages={chatMessages}
-          ID={ID} setID={setID}
-          chatData={chatData} setChatData={setChatData}
-          onFirstSend={handleFirstSend}
-        />
-        <Chat_Message chatMessages={chatMessages} />
-      </div>
-    </div>
-  );
-};
+            <div className='chats'>
+              {Object.keys(chatData).map(id => (
+                <div key={id} className="chat-item">
+                  <a 
+                    href={`${window.location.pathname}?id=${id}`} 
+                    className="chat-link"
+                    title={chatData[id].name}
+                  >
+                    {chatData[id].name}
+                  </a>
+                  <button 
+                    className="delete-btn" 
+                    onClick={(e) => deleteChat(id, e)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      };
 
-ReactDOM.createRoot(container).render(<Lola/>);
+      /* MAIN APP */
+      const Lola = () => {
+
+        const [chatData, setChatData] = React.useState({});
+        const [ID, setID] = React.useState(null);
+        const [chatMessages, setChatMessages] = React.useState([]);
+        const [showWelcome, setShowWelcome] = React.useState(true);
+        const [hasSentFirst, setHasSentFirst] = React.useState(false);
+
+        React.useEffect(() => {
+          const stored = JSON.parse(localStorage.getItem("chat_data")) || {};
+          setChatData(stored);
+
+          const urlID = new URLSearchParams(window.location.search).get("id");
+
+          if(urlID && stored[urlID]){
+            setID(urlID);
+            setChatMessages(stored[urlID].messages || []);
+            setShowWelcome(false);
+          }
+        }, []);
+
+        const handleFirstSend = () => {
+          if (!hasSentFirst) {
+            setShowWelcome(false);
+            setHasSentFirst(true);
+          }
+        };
+
+        return (
+          <div className='All'>
+            <WelcomeMessage show={showWelcome} />
+            <AiStyling 
+              chatData={chatData} 
+              setChatData={setChatData}
+              currentID={ID}
+              setID={setID}
+              setChatMessages={setChatMessages}
+            />
+            <div className='input-Messages'>
+              <Chat_input
+                setChatMessages={setChatMessages}
+                chatMessages={chatMessages}
+                ID={ID} setID={setID}
+                chatData={chatData} setChatData={setChatData}
+                onFirstSend={handleFirstSend}
+              />
+              <Chat_Message chatMessages={chatMessages} />
+            </div>
+          </div>
+        );
+      };
+
+      ReactDOM.createRoot(container).render(<Lola/>);
 
     </script>
   </body>
+</html>
