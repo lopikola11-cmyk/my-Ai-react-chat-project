@@ -3,102 +3,67 @@
   <head>
     <title>chatbot</title>
     <style>
-      html{ height: 100%;}
-      .All{
-        height: 100vh;
-        width: 100%;
-        display: flex;
+      html{ height: 100%; }
+      .All{ height: 100vh; width: 100%; display: flex; }
+      .input-Messages{ width: 100%; min-width: 1200px; margin-left: auto; margin-right: auto; display: flex; flex-direction: column; align-items: center; }
+      .bomba{ background-color: red; }
+      body{ height: 100%; width: 100%; margin: 0; padding:0; background-color: rgb(197,197,221); }
+      .input-div{ display: flex; flex-direction: column; justify-content:center; align-items:center; margin:10px auto; min-width:400px; max-width:1000px; gap:10px; }
+      .input-div button{ background-color:green; width:80px; height:35px; }
+      .input-div input{ min-width:400px; width:600px; height:30px; }
+      .div-chatMessages{ display:flex; flex-direction:column; background-color:yellow; width:75%; }
+      .robot,.user{ display:flex; width:100%; gap:10px; justify-content:center; margin-top:10px; }
+      
+      /* Sidebar: 140px wide */
+      .table{ position:fixed; top:0; left:0; height:100vh; width:140px; display:flex; flex-direction:column; background:#1e293b; }
+      .sidebar{ display:flex; flex-direction:column; align-items:center; width:100%; background:#1e293b; }
+      .sidebar a{ padding:10px 12px; text-decoration:none; color:white; border-radius:8px; margin:6px 0; text-align:center; font-size:13px; }
+      .sidebar a:hover{ background:#334155; cursor:pointer; }
+      .sidebar a.active{ background:#3b82f6; }
+      .chats{ color:white; margin-top:20px; padding-left:0px; width:100%; }
+      .chats a{ color:white; display:block; margin-bottom:6px; font-size:12px; }
+
+      /* Chat item with Delete button */
+      .chat-item {
+        display: flex; align-items: start; justify-content: start;
+        width: 100%; padding-left:0px; margin-bottom: 6px;
       }
-      .input-Messages{
-        width: 100%;
-        min-width: 1200px;
-        margin-left: auto;
-        margin-right: auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      .chat-link {
+        flex: 1; text-align: left; padding: 6px 8px;
+        color: white; text-decoration: none; font-size: 12px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
-      .bomba { background-color: red; }
-      body{
-        height: 100%;
-        width: 100%;
-        margin: 0px;
-        padding:0px;
-        background-color: rgb(197, 197, 221);
+      .chat-link:hover { background: #334155; border-radius: 6px; }
+
+      /* SQUARE DELETE BUTTON */
+      .delete-btn {
+        background: #ef4444; color: white; border: none;
+        width: 58px; height: 28px; border-radius: 6px;
+        font-size: 11px; font-weight: bold; cursor: pointer;
+        margin-left: 4px; flex-shrink: 0; margin-right:4px ;
       }
-      .input-div {
-        display: flex;     
-        flex-direction: column;          
-        justify-content: center;
-        align-items: center;     
-        margin: 10px auto;              
-        min-width: 400px;
-        max-width: 1000px;
-        gap: 10px;
-      }
-      .input-div button{ 
-        background-color: green;
-        width: 80px;
-        height: 35px;
-      }
-      .input-div input{ 
-        min-width: 400px;
-        width: 600px;
-        max-width: 1200px;
-        flex-grow: 1;
-        height: 30px;
-      }
-      .div-chatMessages{
-        display: flex;
-        flex-direction: column;
-        background-color: yellow;
-        justify-content: center;
-        width: 75%;
-      }
-      .robot,.user{
-        display: flex;
-        width: 100%;
-        gap: 10px;
-        justify-content: center;
-        margin-top: 10px;
-      }
-      .table {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 100px;
-        display: flex;
-        flex-direction: column;
-        margin: 0;
-        padding: 0;
-        background-color: #1e293b;
-        z-index: 1000;
-      }
-      .sidebar {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        width: 100px;
-        height: 100%;
-        background-color: #1e293b;
-      }
-      .sidebar a {
-        padding: 12px 16px;
-        text-decoration: none;
+      .delete-btn:hover { background: #dc2626; }
+
+      /* WELCOME MESSAGE - CENTER */
+      .welcome-message {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(30, 41, 59, 0.95);
         color: white;
-        border-radius: 8px;
-        margin: 6px 0;
+        padding: 30px 50px;
+        border-radius: 16px;
         text-align: center;
-        transition: background 0.3s;
+        font-size: 28px;
+        font-weight: bold;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 100;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
       }
-      .sidebar a:hover {
-        background-color: #334155;
-        cursor: pointer;
-      }
-      .sidebar a.active {
-        background-color: #3b82f6;
+      .welcome-message.hidden {
+        opacity: 0;
+        pointer-events: none;
       }
     </style>
   </head>
@@ -113,131 +78,201 @@
 
     <script type="text/babel">
 
-function className(){ 
-  return 'bomba';
-}
-
+function className(){ return 'bomba'; }
 const container = document.querySelector('.js-container');
 
-/* -------- Chat_input -------- */
+/* WELCOME */
+const WelcomeMessage = ({ show }) => {
+  if (!show) return null;
+  return <div className="welcome-message">Welcome, User!</div>;
+};
+
+/* CHAT INPUT */
 const Chat_input = ({ 
-  setChatMessages, 
-  chatMessages, 
-  keyValue, setKey, 
-  ID, setID 
-}) => { 
+  setChatMessages, chatMessages,
+  ID, setID,
+  chatData, setChatData,
+  onFirstSend
+}) => {
 
   const [inputText, setInputText] = React.useState('');
 
-  function saveInputMessage(event) {
-    setInputText(event.target.value);
-  }
+  function saveInputMessage(e){ setInputText(e.target.value); }
 
-  function sendMessage() {
+  function sendMessage(){
+    if (onFirstSend) onFirstSend();
 
-    // FIRST MESSAGE → generate ID + update browser URL
-    if (keyValue === 0) {
+    const newMessages = [
+      ...chatMessages,
+      { message: inputText, sender:'user', id:crypto.randomUUID() },
+      { message: Chatbot.getResponse(inputText), sender:'robot', id:crypto.randomUUID() }
+    ];
+
+    setChatMessages(newMessages);
+
+    let activeID = ID;
+
+    if(!ID){
       const newID = crypto.randomUUID();
       setID(newID);
-      setKey(1);
+      activeID = newID;
 
-      // CORRECT: Add query param to the CURRENT PAGE
+      const newChatName = `Chat N:${Object.keys(chatData).length + 1}`;
+
+      const newData = {
+        ...chatData,
+        [newID]: {
+          name: newChatName,
+          messages: newMessages
+        }
+      };
+
+      setChatData(newData);
+      localStorage.setItem("chat_data", JSON.stringify(newData));
       history.pushState({}, "", `?id=${newID}`);
     } 
     else {
-      setKey(keyValue + 1);
-    }
+      const updated = {
+        ...chatData,
+        [activeID]: {
+          ...chatData[activeID],
+          messages: newMessages
+        }
+      };
 
-    // Add messages normally (NO prev)
-    setChatMessages([
-      ...chatMessages,
-      { message: inputText, sender: 'user', id: crypto.randomUUID() },
-      { message: Chatbot.getResponse(inputText), sender: 'robot', id: crypto.randomUUID() }
-    ]);
+      setChatData(updated);
+      localStorage.setItem("chat_data", JSON.stringify(updated));
+    }
 
     setInputText('');
   }
 
   return (
     <div className='input-div'>
-      <input size="30" onChange={saveInputMessage} value={inputText} placeholder='Ask me'/>
-      <button onClick={sendMessage} className={className()}>send message</button>
+      <input onChange={saveInputMessage} value={inputText} placeholder='Ask me'/>
+      <button onClick={sendMessage} className={className()}>send</button>
     </div>
   );
-}
+};
 
-/* -------- Chat_Message -------- */
-const Chat_Message = ({ chatMessages }) => { 
+/* CHAT MESSAGES */
+const Chat_Message = ({ chatMessages }) => (
+  <div className='div-chatMessages'>
+    {chatMessages.map(chat => (
+      <div key={chat.id} className={chat.sender==='robot'?'robot':'user'}>
+        {chat.sender==='robot' && <img src="robot.png" width="30"/>}
+        {chat.message}
+        {chat.sender==='user' && <img src="user.png" width="30"/>}
+      </div>
+    ))}
+  </div>
+);
 
-  return (
-    <div className='div-chatMessages'>
-      {chatMessages.map(chat => (
-        <div key={chat.id} className={chat.sender==='robot'?'robot':'user'}>
-          {chat.sender === 'robot' && <img src="robot.png" width="30"/>}
-          {chat.message}
-          {chat.sender === 'user' && <img src="user.png" width="30"/>}
-        </div>
-      ))}
-    </div>
-  );
-}
+/* SIDEBAR */
+const AiStyling = ({ chatData, setChatData, currentID, setID, setChatMessages }) => {
 
-/* -------- AiStyling -------- */
-const AiStyling = ({ keyValue, ID }) => {
-   
+  const deleteChat = (idToDelete, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const updated = { ...chatData };
+    delete updated[idToDelete];
+    setChatData(updated);
+    localStorage.setItem("chat_data", JSON.stringify(updated));
+
+    if (currentID === idToDelete) {
+      setID(null);
+      setChatMessages([]);
+      history.pushState({}, "", `/`);
+    }
+  };
+
   return (
     <div className='table'>
       <div className="sidebar">
-
-        <a 
-          href={'index.html'}
-          target="_blank"
-          className="active"
-        >
-          New chat
-        </a>
-
+        <a href='/' target="_blank" className="active">New chat</a>
         <a href="#">Search chats</a>
         <a href="#">Library</a>
         <a href="#">Chats</a>
       </div>
-      <div className='chat-history'></div>
+
+      <div className='chats'>
+        {Object.keys(chatData).map(id => (
+          <div key={id} className="chat-item">
+            <a 
+              href={`?id=${id}`} 
+              className="chat-link"
+              title={chatData[id].name}
+            >
+              {chatData[id].name}
+            </a>
+            <button 
+              className="delete-btn" 
+              onClick={(e) => deleteChat(id, e)}
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
-}
+};
 
+/* MAIN APP */
+const Lola = () => {
 
-/* -------- Lola -------- */
-const Lola = () => { 
-
-  // Your states
-  const [key, setKey] = React.useState(0);
+  const [chatData, setChatData] = React.useState({});
   const [ID, setID] = React.useState(null);
+  const [chatMessages, setChatMessages] = React.useState([]);
+  const [showWelcome, setShowWelcome] = React.useState(true);
+  const [hasSentFirst, setHasSentFirst] = React.useState(false);
 
-  const [chatMessages, setChatMessages] = React.useState([
-   
-  ]);
+  React.useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("chat_data")) || {};
+    setChatData(stored);
+
+    const urlID = new URLSearchParams(window.location.search).get("id");
+
+    if(urlID && stored[urlID]){
+      setID(urlID);
+      setChatMessages(stored[urlID].messages || []);
+      setShowWelcome(false);
+    }
+  }, []);
+
+  const handleFirstSend = () => {
+    if (!hasSentFirst) {
+      setShowWelcome(false);
+      setHasSentFirst(true);
+    }
+  };
 
   return (
     <div className='All'>
-      <AiStyling keyValue={key} ID={ID} />
-
+      <WelcomeMessage show={showWelcome} />
+      <AiStyling 
+        chatData={chatData} 
+        setChatData={setChatData}
+        currentID={ID}
+        setID={setID}
+        setChatMessages={setChatMessages}
+      />
       <div className='input-Messages'>
-        <Chat_input 
+        <Chat_input
           setChatMessages={setChatMessages}
           chatMessages={chatMessages}
-          keyValue={key} setKey={setKey}
           ID={ID} setID={setID}
+          chatData={chatData} setChatData={setChatData}
+          onFirstSend={handleFirstSend}
         />
-
         <Chat_Message chatMessages={chatMessages} />
       </div>
     </div>
   );
-}
+};
 
 ReactDOM.createRoot(container).render(<Lola/>);
 
     </script>
   </body>
-</html>
